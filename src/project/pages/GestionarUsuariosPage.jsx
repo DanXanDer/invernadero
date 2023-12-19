@@ -4,106 +4,54 @@ import { PersonAdd } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { CustomNoRowsOverlay, TableColumnsUsuarios } from "../components";
-
-const usuarios = [
-  {
-    id: 1,
-    nombreUsuario: "usuario1",
-    nombres: "Juan",
-    apellidos: "Pérez",
-    correo: "juan.perez@example.com",
-    tipo: "Administrador",
-    estado: 1,
-  },
-  {
-    id: 2,
-    nombreUsuario: "usuario2",
-    nombres: "María",
-    apellidos: "Gómez",
-    correo: "maria.gomez@example.com",
-    tipo: "Usuario",
-    estado: 0,
-  },
-  {
-    id: 3,
-    nombreUsuario: "usuario3",
-    nombres: "Carlos",
-    apellidos: "Rodríguez",
-    correo: "carlos.rodriguez@example.com",
-    tipo: "Usuario",
-    estado: 1,
-  },
-  // Agrega más usuarios según sea necesario
-  {
-    id: 4,
-    nombreUsuario: "usuario4",
-    nombres: "Laura",
-    apellidos: "Fernández",
-    correo: "laura.fernandez@example.com",
-    tipo: "Usuario",
-    estado: 0,
-  },
-  {
-    id: 5,
-    nombreUsuario: "usuario5",
-    nombres: "Andrés",
-    apellidos: "López",
-    correo: "andres.lopez@example.com",
-    tipo: "Administrador",
-    estado: 1,
-  },
-  {
-    id: 6,
-    nombreUsuario: "usuario6",
-    nombres: "Ana",
-    apellidos: "Sánchez",
-    correo: "ana.sanchez@example.com",
-    tipo: "Usuario",
-    estado: 0,
-  },
-  {
-    id: 7,
-    nombreUsuario: "usuario7",
-    nombres: "Pedro",
-    apellidos: "Martínez",
-    correo: "pedro.martinez@example.com",
-    tipo: "Usuario",
-    estado: 1,
-  },
-  {
-    id: 8,
-    nombreUsuario: "usuario8",
-    nombres: "Sofía",
-    apellidos: "Gutiérrez",
-    correo: "sofia.gutierrez@example.com",
-    tipo: "Usuario",
-    estado: 0,
-  },
-  {
-    id: 9,
-    nombreUsuario: "usuario9",
-    nombres: "Daniel",
-    apellidos: "Hernández",
-    correo: "daniel.hernandez@example.com",
-    tipo: "Administrador",
-    estado: 1,
-  },
-  {
-    id: 10,
-    nombreUsuario: "usuario10",
-    nombres: "Elena",
-    apellidos: "Díaz",
-    correo: "elena.diaz@example.com",
-    tipo: "Usuario",
-    estado: 0,
-  },
-];
+import { get, ref, onValue, update } from "firebase/database";
+import { db } from "../../firebase/firebase";
+import { useEffect, useState } from "react";
+import { showAlertMessage, showConfirmationMessage } from "../../helpers";
 
 export const GestionarUsuariosPage = () => {
   const navigate = useNavigate();
 
+  const [usuarios, setUsuarios] = useState([]);
+
   const handleCrearUsuarioNavigate = () => {
     navigate("/invernadero/crear-usuario");
+  };
+
+  useEffect(() => {
+    const usersRef = ref(db, "users");
+
+    const unsubscribe = onValue(usersRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) {
+        const usuariosArray = Object.keys(data).map((key) => ({
+          id: key,
+          ...data[key],
+        }));
+        setUsuarios(usuariosArray);
+      } else {
+        setUsuarios([]);
+      }
+    });
+    return () => unsubscribe();
+  }, []);
+
+  const handleToggleEstado = async (userId, newEstado) => {
+    const isConfirmed = await showConfirmationMessage({
+      title: "Confirmación",
+      text: "¿Está seguro de cambiar el estado del usuario?",
+      icon: "warning",
+    });
+    if (!isConfirmed) return;
+
+    const userRef = ref(db, `users/${userId}`);
+
+    try {
+      await update(userRef, { estado: newEstado });
+      showAlertMessage("Éxito", "Se cambió el estado del usuario", "success");
+    } catch (error) {
+      console.error("Error al cambiar el estado del usuario:", error.message);
+    }
   };
 
   return (
@@ -124,7 +72,7 @@ export const GestionarUsuariosPage = () => {
           disableColumnFilter
           disableColumnSelector
           disableDensitySelector
-          columns={TableColumnsUsuarios()}
+          columns={TableColumnsUsuarios({ handleToggleEstado })}
           rows={usuarios}
           slots={{
             toolbar: GridToolbar,

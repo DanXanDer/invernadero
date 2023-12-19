@@ -7,5 +7,6 @@ export * from "./CustomIcon";
 export * from "./CardVariable";
 export * from "./TableColumnsActuador";
 export * from "./TableColumnsSensor";
+export * from "./TableColumnsVariable";
 export * from "./CustomNoRowsOverlay";
 export * from "./TableColumnsUsuarios";

@@ -10,7 +10,7 @@ export const AuthLayout = ({ children, pageTitle, titleDesc }) => {
         sm={4}
         md={7}
         sx={{
-          backgroundImage: "url(https://source.unsplash.com/random)",
+          backgroundImage: "url(/src/assets/images/hero.jpg)",
           backgroundRepeat: "no-repeat",
           backgroundColor: (t) =>
             t.palette.mode === "light"

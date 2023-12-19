@@ -51,8 +51,8 @@ const sensores = [
 export const SensoresPage = () => {
   const navigate = useNavigate();
 
-  const handleCardClick = () => {
-    navigate("/invernadero/sensores/actividad-sensor");
+  const handleCardClick = (sensor) => {
+    navigate("/invernadero/sensores/actividad-sensor", { state: { sensor } });
   };
   return (
     <GestionInvernaderoLayout>

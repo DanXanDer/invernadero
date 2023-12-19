@@ -1,6 +1,6 @@
 import { Controller, useForm } from "react-hook-form";
 import { GestionInvernaderoLayout } from "../layout";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -15,6 +15,10 @@ import {
   Typography,
 } from "@mui/material";
 import { PersonAdd, Visibility, VisibilityOff } from "@mui/icons-material";
+import { db } from "../../firebase/firebase";
+import { onValue, ref, set, push } from "firebase/database";
+import { showAlertMessage, showConfirmationMessage } from "../../helpers";
+import { useNavigate } from "react-router-dom";
 
 export const CrearUsuarioPage = () => {
   const {
@@ -27,14 +31,54 @@ export const CrearUsuarioPage = () => {
     unregister,
   } = useForm();
 
+  const navigate = useNavigate();
+
   const [showPassword, setShowPassword] = useState(false);
   const handleClickShowPassword = () => {
     setShowPassword(!showPassword);
   };
 
-  const onSubmit = (data) => {
-    console.log(data);
+  const onSubmit = async (data) => {
+
+    const isConfirmed = await showConfirmationMessage({
+      title: "Confirmación",
+      text: "¿Está seguro de proceder con la creación del usuario?",
+      icon: "warning",
+    });
+    if (!isConfirmed) return;
+
+    try {
+      const usersRef = ref(db, "users/");
+      const newUserDataRef = push(usersRef);
+
+      const userData = {
+        estado: "Habilitado",
+        fecha: new Date().toLocaleDateString(),
+        tipo: "Usuario",
+        ...data,
+      };
+
+      await set(newUserDataRef, userData);
+
+      showAlertMessage("Éxito", "Usuario creado correctamente", "success");
+      navigate("/invernadero/usuarios");
+    } catch (error) {
+      showAlertMessage(
+        "Error",
+        `Error al crear usuario: ${error.message}`,
+        "error"
+      );
+    }
   };
+
+  /*useEffect(() => {
+    const query = ref(db, "test");
+    return onValue(query, (snapshot) => {
+      const data = snapshot.val();
+      console.log(data);
+    });
+  }, []);*/
+
   return (
     <GestionInvernaderoLayout>
       <Grid

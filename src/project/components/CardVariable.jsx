@@ -15,6 +15,7 @@ export const CardVariable = ({
   descripcion,
   pathImage,
   handleCardClick,
+  nombreValue,
 }) => {
   return (
     <Grid item key={id} xs={12} md={6}>
@@ -41,7 +42,11 @@ export const CardVariable = ({
           </CardContent>
         </CardActionArea>
         <CardActions>
-          <Button size="small" color="primary" onClick={handleCardClick}>
+          <Button
+            size="small"
+            color="primary"
+            onClick={() => handleCardClick(nombreValue, nombre)}
+          >
             Ver actividad
           </Button>
         </CardActions>

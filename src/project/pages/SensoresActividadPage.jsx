@@ -2,6 +2,7 @@ import { Box, Grid, Paper, Typography } from "@mui/material";
 import { GestionInvernaderoLayout } from "../layout";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { TableColumnsSensor } from "../components";
+import { useLocation } from "react-router-dom";
 
 const obtenerEstado = (temperatura, humedad) => {
   const umbralTemperatura = 25;
@@ -125,11 +126,15 @@ const lecturasRows = [
 ];
 
 export const SensoresActividadPage = () => {
+  const { state } = useLocation();
+
+  const { sensor } = state;
+
   return (
     <GestionInvernaderoLayout>
       <Grid component={Paper} p={1} mb={4} textAlign="center">
         <Typography component="h2" variant="span">
-          Sensor DHT11
+          {sensor}
         </Typography>
       </Grid>
       <Box sx={{ height: 700 }}>
